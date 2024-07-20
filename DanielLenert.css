@@ -15,7 +15,7 @@ html::-webkit-scrollbar-thumb{
 
 .background{
     background-color: #ff5c00ff;
-    background-image:url("img/RastergrafikMoltenLowRes.png"); 
+    background-image:url("resources/RastergrafikMoltenLowRes.jpg"); 
     background-attachment: fixed; 
     background-size: cover;
     padding: 0;
