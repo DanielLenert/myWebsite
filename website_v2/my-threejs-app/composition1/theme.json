@@ -1,0 +1,20 @@
+{
+  "theme": {
+    "warm": {
+      "orange": "#ff5c00",
+      "pnik": "#fc077b",
+      "darkBlue": "#182276",
+      "yellow": "#fcce4d",
+      "lightBlue": "#b3e7fc",
+      "white": "#fffef6"
+    },
+    "cold": {
+      "black": "#001426",
+      "green": "#00ae2e",
+      "greyBlack": "#002328",
+      "royalBlue": "#0012a6",
+      "skyBlue": "#00aeff",
+      "white": "#fffef6"
+    }
+  }
+}
