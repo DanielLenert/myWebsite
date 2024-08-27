@@ -1,9 +1,13 @@
 import '../style.css'
 import * as THREE from 'three';
 import theme from '/composition1/theme.json'
+import {createSceneControls} from "./Components/OrbitControl/OrbitControl.js";
+import {addLights} from "./Components/Lights/StandardLighting.js";
+import {addGradients} from "./Components/Gradients/gradient.js";
+import {createHalftoneEffect} from "./Effects/Halftone/halftone.js";
+import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
 //setup
-
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(theme.theme.warm.orange);
 
@@ -11,56 +15,81 @@ const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerH
 camera.position.setZ(30);
 
 const clock = new THREE.Clock();
+
 //renderer
 const renderer = new THREE.WebGLRenderer({
     canvas: document.querySelector('#bg')
 });
 renderer.setPixelRatio(window.devicePixelRatio/1);
-
 renderer.setSize(window.innerWidth, window.innerHeight);
-
 renderer.render(scene,camera);
 
-let g = new THREE.PlaneGeometry(2, 2);
-let m = new THREE.ShaderMaterial({
-    uniforms: {
-        color1: { value: new THREE.Color(0xff00ff)},
-        color2: { value: new THREE.Color(0xff0000)},
-        ratio: {value: innerWidth / innerHeight}
-    },
-    vertexShader: `varying vec2 vUv;
-      void main(){
-        vUv = uv;
-        gl_Position = vec4(position, 1.);
-      }`,
-    fragmentShader: `varying vec2 vUv;
-        uniform vec3 color1;
-        uniform vec3 color2;
-        uniform float ratio;
-        void main(){
-        	vec2 uv = (vUv - 0.5) * vec2(ratio, 1.);
-          gl_FragColor = vec4( mix( color1, color2, length(uv)), 1. );
-        }`
-})
-let p = new THREE.Mesh(g,m);
-scene.add(p)
+//Geom
+const sphereGroup = addGradients(scene,15);
 
-// //light
-// const pointlight = new THREE.PointLight(0xffffff)
-// pointlight.position.set(2,2,10)
-//
-// const ambientLight = new THREE.AmbientLight(0xffffff)
-// scene.add(pointlight,ambientLight);
-//
-// const lightHelper = new THREE.PointLightHelper(pointLight);
-// const gridHelper = new THREE.GridHelper(200,50);
-// scene.add(lightHelper, gridHelper);
+//light
+addLights(scene)
+
+//controls
+const controls = createSceneControls(scene, camera,renderer)
+
+const { composer, halftonePass } = createHalftoneEffect(renderer,scene, camera);
+
+window.onresize = function () {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    composer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+};
+
+// GUI für HalftonePass
+const controller = {
+    radius: halftonePass.uniforms['radius'].value,
+    rotateR: halftonePass.uniforms['rotateR'].value / (Math.PI / 180),
+    rotateG: halftonePass.uniforms['rotateG'].value / (Math.PI / 180),
+    rotateB: halftonePass.uniforms['rotateB'].value / (Math.PI / 180),
+    scatter: halftonePass.uniforms['scatter'].value,
+    shape: halftonePass.uniforms['shape'].value,
+    greyscale: halftonePass.uniforms['greyscale'].value,
+    blending: halftonePass.uniforms['blending'].value,
+    blendingMode: halftonePass.uniforms['blendingMode'].value,
+    disable: halftonePass.uniforms['disable'].value
+};
+
+function onGUIChange() {
+    halftonePass.uniforms['radius'].value = controller.radius;
+    halftonePass.uniforms['rotateR'].value = controller.rotateR * (Math.PI / 180);
+    halftonePass.uniforms['rotateG'].value = controller.rotateG * (Math.PI / 180);
+    halftonePass.uniforms['rotateB'].value = controller.rotateB * (Math.PI / 180);
+    halftonePass.uniforms['scatter'].value = controller.scatter;
+    halftonePass.uniforms['shape'].value = controller.shape;
+    halftonePass.uniforms['greyscale'].value = controller.greyscale;
+    halftonePass.uniforms['blending'].value = controller.blending;
+    halftonePass.uniforms['blendingMode'].value = controller.blendingMode;
+    halftonePass.uniforms['disable'].value = controller.disable;
+}
+
+const gui = new GUI();
+gui.add(controller, 'shape', { 'Dot': 1, 'Ellipse': 2, 'Line': 3, 'Square': 4 }).onChange(onGUIChange);
+gui.add(controller, 'radius', 1, 25).onChange(onGUIChange);
+gui.add(controller, 'rotateR', 0, 90).onChange(onGUIChange);
+gui.add(controller, 'rotateG', 0, 90).onChange(onGUIChange);
+gui.add(controller, 'rotateB', 0, 90).onChange(onGUIChange);
+gui.add(controller, 'scatter', 0, 1, 0.01).onChange(onGUIChange);
+gui.add(controller, 'greyscale').onChange(onGUIChange);
+gui.add(controller, 'blending', 0, 1, 0.01).onChange(onGUIChange);
+gui.add(controller, 'blendingMode', { 'Linear': 1, 'Multiply': 2, 'Add': 3, 'Lighter': 4, 'Darker': 5 }).onChange(onGUIChange);
+gui.add(controller, 'disable').onChange(onGUIChange);
 
 function animate() {
     requestAnimationFrame(animate);
 
-    const delta = clock.getDelat();
-    rerender.render(scene,camera);
+    sphereGroup.rotation.x -= 0.001;
+    sphereGroup.rotation.y += 0.001;
+
+    controls.update();
+    const delta = clock.getDelta();
+    renderer.render(scene,camera);
     composer.render(delta);
 }
 
