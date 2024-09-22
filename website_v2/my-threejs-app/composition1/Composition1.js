@@ -84,8 +84,8 @@ gui.add(controller, 'disable').onChange(onGUIChange);
 function animate() {
     requestAnimationFrame(animate);
 
-    sphereGroup.rotation.x -= 0.001;
-    sphereGroup.rotation.y += 0.001;
+    sphereGroup.rotation.z -= 0.005;
+    // sphereGroup.rotation.y += 0.001;
 
     controls.update();
     const delta = clock.getDelta();

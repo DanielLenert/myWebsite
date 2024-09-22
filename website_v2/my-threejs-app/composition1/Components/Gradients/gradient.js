@@ -10,10 +10,11 @@ export function addGradients(scene,numberOfSpheres) {
         theme.theme.warm.lightBlue,
     ]
 
-    const sphereGroup = new THREE.Group();
+    const cylinderGroup = new THREE.Group();
 
-    const radius = 30;
-    const sphereRadius = 10;
+    const cylinderRadius = 50;
+    const cylinderHeight = 70;
+    const sphereRadius = Math.random()*200;
 
     //Geom
     for (let i = 0; i < numberOfSpheres; i++) {
@@ -22,29 +23,45 @@ export function addGradients(scene,numberOfSpheres) {
 
         const color = colors[i%colors.length];
 
-        const geometry = new THREE.SphereGeometry(sphereRadius, 32, 32)
+        const geometry = new THREE.CircleGeometry(sphereRadius, 32, 32)
         const material = new THREE.MeshStandardMaterial({
             color: color,
         });
-        const sphere = new THREE.Mesh(geometry, material);
+        const circle = new THREE.Mesh(geometry, material);
 
-        const phi = Math.acos(-1 + (2 * i) / numberOfSpheres);
-        const theta = Math.sqrt(numberOfSpheres * Math.PI) * phi;
+        // const phi = Math.acos(-1 + (2 * i) / numberOfSpheres);
+        // const theta = Math.sqrt(numberOfSpheres * Math.PI) * phi;
+        //
+        // const min = 0;
+        //
+        // //variance towards center of the sphere
+        // const randomRadius = (Math.random() * (radius - min) + min) + radius;
+        //
+        // const x = randomRadius * Math.cos(theta) * Math.sin(phi);
+        // const y = randomRadius * Math.sin(theta) * Math.sin(phi);
+        // const z = randomRadius * Math.cos(phi);
+        //
+        // // const [x, y, z] = Array(3).fill().map(() => THREE.MathUtils.randFloatSpread(120));
+        // sphere.position.set(x, y, z);
+        // sphereGroup.add(sphere);
 
-        const min = 0;
+        const theta = (i/numberOfSpheres) * Math.PI*2;
+        const z = Math.random() * cylinderHeight - cylinderHeight / 2;
+        const randomRadius = cylinderRadius + (Math.random() - 0.5) * 5;
 
-        //variance towards center of the sphere
-        const randomRadius = (Math.random() * (radius - min) + min) + radius;
+        const x = randomRadius * Math.cos(theta);
+        const y = randomRadius * Math.sin(theta);
 
-        const x = randomRadius * Math.cos(theta) * Math.sin(phi);
-        const y = randomRadius * Math.sin(theta) * Math.sin(phi);
-        const z = randomRadius * Math.cos(phi);
+        circle.position.set(x, y, z);
 
-        // const [x, y, z] = Array(3).fill().map(() => THREE.MathUtils.randFloatSpread(120));
-        sphere.position.set(x, y, z);
-        sphereGroup.add(sphere);
+
+        const centerOfCylinder = new THREE.Vector3(0,0,z);
+        circle.lookAt(centerOfCylinder);
+
+
+        cylinderGroup.add(circle);
     }
 
-    scene.add(sphereGroup);
-    return sphereGroup;
+    scene.add(cylinderGroup);
+    return cylinderGroup;
 }

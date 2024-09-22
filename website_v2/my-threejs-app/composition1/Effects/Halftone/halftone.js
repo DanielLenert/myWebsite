@@ -2,7 +2,8 @@ import * as THREE from 'three';
 // halftoneEffect.js
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { HalftonePass } from 'three/addons/postprocessing/HalftonePass.js';
+import { HalftonePassEdit } from "./HalftonePassEdit.js";
+
 
 export function createHalftoneEffect(renderer, scene, camera) {
     // Erstelle den EffectComposer
@@ -27,7 +28,7 @@ export function createHalftoneEffect(renderer, scene, camera) {
     };
 
     // Erstelle den HalftonePass
-    const halftonePass = new HalftonePass(window.innerWidth, window.innerHeight / 2, params);
+    const halftonePass = new HalftonePassEdit(window.innerWidth, window.innerHeight / 2, params);
     composer.addPass(halftonePass);
 
     return { composer, halftonePass };
